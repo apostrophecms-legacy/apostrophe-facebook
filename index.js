@@ -53,41 +53,56 @@ function Construct(options, callback) {
 
   self.load = function(req, item, callback) {
 
-
-    item._entries = [];
-
-    function() {
-      fb.get("punkave", )
-    }
-
     var now = new Date();
     // Take all properties into account, not just the feed, so the cache
     // doesn't prevent us from seeing a change in the limit property right away
-    var key = JSON.stringify({ feed: item.url, limit: item.limit });
+    var key = JSON.stringify({ feed: item.pageUrl, limit: item.limit });
     if (cache.hasOwnProperty(key) && ((cache[key].when + lifetime) > now.getTime())) {
       item._entries = cache[key].data;
       return callback();
     }
 
-    feedparser.parseUrl(item._rssUrl).on('complete', function(meta, articles) {
-      articles = articles.slice(0, item.limit);
+    item._entries = [];
+    item._pageId = "";
+    var nameString = item.pageUrl.match(/facebook.com\/(\w+)/);
+    item._name = nameString[1];
 
-      // map is native in node
-      item._entries = articles.map(function(article) {
-        return {
-          title: article.title,
-          body: article.description,
-          date: article.pubDate,
-          link: article.link
-        };
+    // This is just a test for now to see how this works.
+    (function() {
+      fb.get(item._name, function(err, res) {
+        item._pageId = res.id;
+        item._rssUrl = "http://www.facebook.com/feeds/page.php?format=rss20&id="+item._pageId;
+        // Now that we've got the right data, let's get the RSS feed.
+        self.getFacebookFeed();
       });
-      // Cache for fast access later
-      cache[key] = { when: now.getTime(), data: item._entries };
-      return callback();
-    }).on('error', function(error) {
-      item._failed = true;
-      return callback();
-    });
+    })();
+
+    //This is a callback to fetching the data from Facebook.
+    self.getFacebookFeed = function(){
+
+      //N.B. Despite the claims in this issue (https://github.com/danmactough/node-feedparser/issues/39),
+      // one still needs to pass headers to parseUrl for Facebook's RSS feed, which is finicky. In an ideal
+      // future with ponies and free lunch, we'll just hit the Graph API. --Joel
+      feedparser.parseUrl({ uri: item._rssUrl, headers:{'user-agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_2) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11'}}).on('complete', function(meta, articles) {
+        articles = articles.slice(0, item.limit);
+        // map is native in node
+        item._entries = articles.map(function(article) {
+
+          return {
+            title: article.title,
+            body: article.description,
+            date: article.pubDate,
+            link: article.link
+          };
+        });
+        // Cache for fast access later
+        cache[key] = { when: now.getTime(), data: item._entries };
+        return callback();
+      }).on('error', function(error) {
+        item._failed = true;
+        return callback();
+      });
+    }
   };
 
   self._apos.addWidgetType('facebook', self);

@@ -22,8 +22,8 @@ function AposFacebookWidgetEditor(options) {
   self.preSave = getPosts;
 
   self.afterCreatingEl = function() {
-    self.$url = self.$el.find('[name="facebookUrl"]');
-    self.$url.val(self.data.url);
+    self.$pageUrl = self.$el.find('[name="facebookUrl"]');
+    self.$pageUrl.val(self.data.pageUrl);
     self.$limit = self.$el.find('[name="facebookLimit"]');
     // N.B. Facebook has a set limit of 10 posts on their RSS feed.
     // We live in a world of useful constraints. --Joel
@@ -36,12 +36,12 @@ function AposFacebookWidgetEditor(options) {
 
 
   function getPosts(callback) {
-    self.exists = !!self.$url.val();
+    self.exists = !!self.$pageUrl.val();
     if (self.exists) {
-      self.data.url = self.$url.val();
+      self.data.pageUrl = self.$pageUrl.val();
       self.data.limit = self.$limit.val();
     }
-    if (!self.$url.val().match(/facebook.com/)) {
+    if (!self.$pageUrl.val().match(/facebook.com/)) {
       return alert(options.messages.incorrect);
     }
     return callback();

@@ -5,8 +5,9 @@
 apostrophe-facebook is a widget for the [Apostrophe](http://github.com/punkave/apostrophe) content management system. Apostrophe lets you display an RSS feed for a Facebook Page in any content area.
 
 ## TO-DO
-- [ ] Build it
-- [ ] Publish to NPM
+- [x] Build it
+- [x] Publish to NPM
+- [ ] Clean up caching to make sure you get new data on save
 - [ ] Build some nice basic styles
 - [ ] Write some tests?
 
