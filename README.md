@@ -7,6 +7,7 @@ apostrophe-facebook is a widget for the [Apostrophe](http://github.com/punkave/a
 ## TO-DO
 - [x] Build it
 - [x] Publish to NPM
+- [ ] Switch loader logic to browser-side player (like Twitter)
 - [ ] Clean up caching to make sure you get new data on save
 - [ ] Build some nice basic styles
 - [ ] Write some tests?
