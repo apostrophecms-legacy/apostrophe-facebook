@@ -41,8 +41,8 @@ function Construct(options, callback) {
   self.icon = options.icon || 'facebook';
 
   self.sanitize = function(item) {
-    if (!item.url.match(/^https?\:\/\//)) {
-      item.url = 'http://' + item.url;
+    if (!item.pageUrl.match(/^https?\:\/\//)) {
+      item.pageUrl = 'http://' + item.pageUrl;
     }
     item.limit = parseInt(item.limit, 10);
   };
