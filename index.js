@@ -1,7 +1,9 @@
 var feedparser = require('feedparser');
-var fb = require('fbgraph');
+var fb = require('fb');
 var extend = require('extend');
 var _ = require('lodash');
+var request = require('request');
+var chalk = require('chalk');
 var cache = {};
 
 module.exports = function(options, callback) {
@@ -17,6 +19,8 @@ function Construct(options, callback) {
   self._apos = apos;
   self._app = app;
   var lifetime = options.lifetime ? options.lifetime : 60000;
+
+  var access_token = options.fbAppId+'|'+options.fbAppSecret;
 
   self._apos.mixinModuleAssets(self, 'facebook', __dirname, options);
 
@@ -53,6 +57,7 @@ function Construct(options, callback) {
 
   self.load = function(req, item, callback) {
 
+
     var now = new Date();
     // Take all properties into account, not just the feed, so the cache
     // doesn't prevent us from seeing a change in the limit property right away
@@ -67,42 +72,35 @@ function Construct(options, callback) {
     var nameString = item.pageUrl.match(/facebook.com\/(\w+)/);
     item._name = nameString[1];
 
-    // This is just a test for now to see how this works.
-    (function() {
-      fb.get(item._name, function(err, res) {
-        item._pageId = res.id;
-        item._rssUrl = "http://www.facebook.com/feeds/page.php?format=rss20&id="+item._pageId;
-        // Now that we've got the right data, let's get the RSS feed.
-        self.getFacebookFeed();
+    return function() {
+      fb.setAccessToken(access_token);
+      fb.api(item._name, { fields: ['posts', 'picture']} , function (res) {
+      if(res.err) {
+        console.log(chalk.red('[Apostrophe Facebook] ') + 'The error is', res.err)
+        return callback(res.err);
+      }
+      var posts = res.posts.data.slice(0, item.limit);
+
+      item._entries = posts.map(function(post) {
+        if (post.picture) {
+          post.picture = post.picture.replace('_s.jpg', '_n.jpg'); //Get the bigger photo url.
+        }
+        return {
+          id: post.id,
+          photo: post.picture,
+          body: post.message,
+          date: post.updated_time,
+          link: post.link,
+          type: post.type,
+          name: post.name,
+          caption: post.caption,
+          description: post.description
+        };
       });
-    })();
-
-    //This is a callback to fetching the data from Facebook.
-    self.getFacebookFeed = function(){
-
-      //N.B. Despite the claims in this issue (https://github.com/danmactough/node-feedparser/issues/39),
-      // one still needs to pass headers to parseUrl for Facebook's RSS feed, which is finicky. In an ideal
-      // future with ponies and free lunch, we'll just hit the Graph API. --Joel
-      feedparser.parseUrl({ uri: item._rssUrl, headers:{'user-agent' : 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_2) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11'}}).on('complete', function(meta, articles) {
-        articles = articles.slice(0, item.limit);
-        // map is native in node
-        item._entries = articles.map(function(article) {
-
-          return {
-            title: article.title,
-            body: article.description,
-            date: article.pubDate,
-            link: article.link
-          };
-        });
-        // Cache for fast access later
-        cache[key] = { when: now.getTime(), data: item._entries };
-        return callback();
-      }).on('error', function(error) {
-        item._failed = true;
+      cache[key] = { when: now.getTime(), data: item._entries };
         return callback();
       });
-    }
+    }();
   };
 
   self._apos.addWidgetType('facebook', self);
