@@ -42,7 +42,7 @@ function Construct(options, callback) {
   self.widget = true;
   self.label = options.label || 'Facebook Feed';
   self.css = options.css || 'facebook';
-  self.icon = options.icon || 'facebook';
+  self.icon = options.icon || 'icon-facebook';
 
   self.sanitize = function(item) {
     if (!item.pageUrl.match(/^https?\:\/\//)) {
