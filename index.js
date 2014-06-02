@@ -40,7 +40,7 @@ function Construct(options, callback) {
   self.pushAsset('stylesheet', 'content', { when: 'always' });
 
   self.widget = true;
-  self.label = options.label || 'Facebook Feed';
+  self.label = options.label || 'Facebook';
   self.css = options.css || 'facebook';
   self.icon = options.icon || 'icon-facebook';
 
