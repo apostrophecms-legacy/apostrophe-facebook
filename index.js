@@ -67,19 +67,31 @@ function Construct(options, callback) {
       return callback();
     }
 
+    if (self._apos._aposLocals.offline) {
+      item._failed = true;
+      return callback(null);
+    }
+
     item._entries = [];
     item._pageId = "";
     var nameString = item.pageUrl.match(/facebook.com\/(\w+)/);
+    if (!nameString) {
+      item._failed = true;
+    }
     item._name = nameString[1];
 
     return function() {
       fb.setAccessToken(access_token);
       fb.api(item._name, { fields: ['posts', 'picture']} , function (res) {
-      if(res.err) {
+      console.log(res);
+      if(res.error) {
+        item._failed = true;
         console.log(chalk.red('[Apostrophe Facebook] ') + 'The error is', res.err)
         return callback(res.err);
       }
-      var posts = res.posts.data.slice(0, item.limit);
+
+      //Make this a bit more fault tolerant.
+      var posts = res.posts.data.slice(0, item.limit) || [];
 
       item._entries = posts.map(function(post) {
         if (post.picture) {

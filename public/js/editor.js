@@ -29,8 +29,8 @@ function AposFacebookWidgetEditor(options) {
     // We live in a world of useful constraints. --Joel
     self.$limit.val(self.data.limit || 10);
     setTimeout(function() {
-      self.$url.focus();
-      self.$url.setSelection(0, 0);
+      self.$pageUrl.focus();
+      self.$pageUrl.setSelection(0, 0);
     }, 500);
   };
 
