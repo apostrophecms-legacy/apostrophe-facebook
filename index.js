@@ -83,7 +83,6 @@ function Construct(options, callback) {
     return function() {
       fb.setAccessToken(access_token);
       fb.api(item._name, { fields: ['posts', 'picture']} , function (res) {
-      console.log(res);
       if(res.error) {
         item._failed = true;
         console.log(chalk.red('[Apostrophe Facebook] ') + 'The error is', res.err)
