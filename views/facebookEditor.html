@@ -1,16 +1,16 @@
 {% extends "baseWidgetEditor.html" %}
 {% include "formMacros.html" %}
 
-{% block widgetVars %}
-  {% set widgetClass = 'apos-facebook-editor apos-ui' %}
+{% block modalClass %}
+  {{ super() }} apos-facebook-editor
+{% endblock%}
+
+{% block modalLabel %}
+  {{ __('Select Facebook Page Feed')}}
 {% endblock %}
 
-{% block title %}
-  Select Facebook Page Feed
-{% endblock %}
-
-{% block instructions %}
-  Enter your Facebook page's URL below.
+{% block modalInstructions %}
+  <p>{{ __("Enter your Facebook page's URL below.")}}</p>
 {% endblock %}
 
 {% block formBody %}
