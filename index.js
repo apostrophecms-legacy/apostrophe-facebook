@@ -85,7 +85,7 @@ function Construct(options, callback) {
       fb.api(item._name, { fields: ['posts', 'picture']} , function (res) {
       if(res.error) {
         item._failed = true;
-        console.log(chalk.red('[Apostrophe Facebook] ') + 'The error is', res.err)
+        console.log(chalk.red('[Apostrophe Facebook] ') + 'The error is', res.error);
         return callback(res.err);
       }
 
