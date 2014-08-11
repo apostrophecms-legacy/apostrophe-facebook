@@ -15,6 +15,10 @@ module.exports.Construct = Construct;
 function Construct(options, callback) {
   var apos = options.apos;
   var app = options.app;
+
+  if (!options.fbAppId || !options.fbAppSecret) {
+    console.error('WARNING: you must configure the fbAppId and fbAppSecret options to use the Facebook widget.');
+  }
   var self = this;
   self._apos = apos;
   self._app = app;
@@ -37,6 +41,7 @@ function Construct(options, callback) {
   // We need the editor for RSS feeds. (TODO: consider separate script lists for
   // resources needed also by non-editing users.)
   self.pushAsset('script', 'editor', { when: 'user' });
+  self.pushAsset('script', 'content', { when: 'always' });
   self.pushAsset('stylesheet', 'content', { when: 'always' });
 
   self.widget = true;
@@ -51,48 +56,77 @@ function Construct(options, callback) {
     item.limit = parseInt(item.limit, 10);
   };
 
-  self.renderWidget = function(data) {
-    return self.render('facebook', data);
-  };
-
-  self.load = function(req, item, callback) {
+  var facebookCache = {};
+  var pageUrl;
 
 
-    var now = new Date();
-    // Take all properties into account, not just the feed, so the cache
-    // doesn't prevent us from seeing a change in the limit property right away
-    var key = JSON.stringify({ feed: item.pageUrl, limit: item.limit });
-    if (cache.hasOwnProperty(key) && ((cache[key].when + lifetime) > now.getTime())) {
-      item._entries = cache[key].data;
-      return callback();
+  //This needs to return a better image.
+  app.get('/apos-facebook/photo/:id', function(req, res){
+    var postId = req.params.id;
+    console.log("You are running");
+    var requestUrl = 'https://graph.facebook.com/'+postId+'/picture?type=large&access_token='+access_token;
+    console.log(requestUrl);
+    request('https://graph.facebook.com/'+postId+'/picture?type=large&access_token='+access_token, function(err, response, body){
+      if (err) {
+        return console.log("The error is", err);
+      }
+      if(response.statusCode === 200){
+        res.type('jpg');
+        return res.send(body);
+      }
+    })
+
+  });
+
+  app.get('/apos-facebook/feed', function(req, res) {
+    var pageUrl = apos.sanitizeString(req.query.pageUrl);
+    var limit = apos.sanitizeString(req.query.limit);
+
+    if (!pageUrl.length) {
+      res.statusCode = 404;
+      console.log(chalk.red('[Apostrophe Facebook] ') + 'It looks like you forgot to enter a URL');
+      return res.send('not found');
+    }
+
+    if (_.has(facebookCache, pageUrl)) {
+      var cache = facebookCache[pageUrl];
+      var now = (new Date()).getTime();
+      if (now - cache.when > cacheLifetime * 1000) {
+        delete facebookCache[pageUrl];
+      } else {
+        return res.send(cache.results);
+      }
     }
 
     if (self._apos._aposLocals.offline) {
-      item._failed = true;
-      return callback(null);
+      res.statusCode = 404;
+      return res.send('offline');
     }
 
-    item._entries = [];
-    item._pageId = "";
-    var nameString = item.pageUrl.match(/facebook.com\/(\w+)/);
+    var nameString = pageUrl.match(/facebook.com\/(\w+)/);
     if (!nameString) {
-      item._failed = true;
+      res.statusCode = 404;
+      console.log(chalk.red('[Apostrophe Facebook] ') + 'The url seems to be incorrect: ', pageUrl);
+      return res.send('incorrect url');
     }
-    item._name = nameString[1];
+
+    // Let's try redefining the URL scheme here.
+    pageUrl = nameString[1];
 
     return function() {
       fb.setAccessToken(access_token);
-      fb.api(item._name, { fields: ['posts', 'picture']} , function (res) {
-      if(res.error) {
-        item._failed = true;
-        console.log(chalk.red('[Apostrophe Facebook] ') + 'The error is', res.err)
-        return callback(res.err);
+      fb.api(pageUrl, { fields: ['posts', 'picture']} , function (response) {
+      if(response.error) {
+        //item._failed = true;
+        console.log(chalk.red('[Apostrophe Facebook] ') + 'The error is', response.err)
+        res.statusCode = 404;
+        return res.send('incorrect url');
       }
 
       //Make this a bit more fault tolerant.
-      var posts = res.posts.data.slice(0, item.limit) || [];
+      var posts = response.posts.data.slice(0, limit) || [];
 
-      item._entries = posts.map(function(post) {
+      var results = posts.map(function(post) {
         if (post.picture) {
           post.picture = post.picture.replace('_s.jpg', '_n.jpg'); //Get the bigger photo url.
         }
@@ -108,10 +142,14 @@ function Construct(options, callback) {
           description: post.description
         };
       });
-      cache[key] = { when: now.getTime(), data: item._entries };
-        return callback();
+      facebookCache[pageUrl] = { when: (new Date()).getTime(),  results: results };
+      return res.send(results);
       });
     }();
+  });
+
+  self.renderWidget = function(data) {
+    return self.render('facebook', data);
   };
 
   self._apos.addWidgetType('facebook', self);

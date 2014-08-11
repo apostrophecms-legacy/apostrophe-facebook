@@ -20,7 +20,9 @@
     <input name="facebookUrl" type="text" class="apos-facebook-url">
   </fieldset>
 
-  {{ formSelect('facebookLimit', 'Number of Posts (up to 10):', [{value:1, label:"1"}, {value:5, label:"5"}, {value:10, label:"10"}] )}}
-
+  <fieldset class="apos-fieldset apos-fieldset-text apos-fieldset-apos-facebook-limit" data-name="facebookUrl">
+    <label>Number of Posts (up to 25):</label>
+    <input name="facebookLimit" type="text" class="apos-input-narrow">
+  </fieldset>
 
 {% endblock %}

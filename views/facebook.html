@@ -1,11 +1,11 @@
-{% if item._failed %}
+{#% if item._failed %}
   <div class="apos-flickr-error">Flickr Gallery not available.</div>
 {% else %}
   <ul class="apos-flickr-set-gallery">
     {% for entry in item._entries %}
       <li>
         {# Here's a basic template for grabbing some posts #}
-        <h4><a href="{{entry.link}}" target="blank">{{entry.title}}</h4>
+        {# <h4><a href="{{entry.link}}" target="blank">{{entry.title}}</h4>
         <h5>{{entry.date}}</h5>
         <div>
           {{entry.body}}
@@ -13,4 +13,32 @@
       </li>
     {% endfor %}
   </ul>
-{% endif %}
+{% endif %} #}
+
+{# We need to handle the error case here. #}
+
+<ul class="apos-facebook-posts" data-apos-facebook-posts>
+  {# Facebook posts are magicked here by the widget player in content.js, which #}
+  {# clones the template post below as needed, removing the apos-template class #}
+  <li class="apos-facebook-post apos-template" data-apos-facebook-post>
+    {# Here's a basic template for grabbing some posts #}
+    <a target="blank" data-apos-facebook-link>
+      <h4 class="apos-facebook-title" data-apos-facebook-title></h4>
+      <h5 class="apos-facebook-date" data-apos-facebook-date></h5>
+      <div class="apos-facebook-photo" data-apos-facebook-photo><img src=""></div>
+      <div class="apos-facebook-body" data-apos-facebook-body></div>
+    </a>
+  </li>
+
+  {# In the main content editor we shouldn't modify the DOM dynamically with JS players, #}
+  {# so just show some placeholder tweets. #}
+  {% if options.editView %}
+    <li class="apos-facebook-post" data-apos-facebook-placeholder>
+      <h4 class="apos-facebook-title">Sample Post Title</h4>
+      <h5 class="apos-facebook-date">1/1/11</h5>
+      <div class="apos-facebook-body">
+        {{ __('This is what a typical Facebook post will look like.') }}
+      </div>
+    </li>
+  {% endif %}
+</ul>

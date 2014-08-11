@@ -30,7 +30,7 @@ function AposFacebookWidgetEditor(options) {
     self.$limit.val(self.data.limit || 10);
     setTimeout(function() {
       self.$pageUrl.focus();
-      self.$pageUrl.setSelection(0, 0);
+      //self.$pageUrl.setSelection(0, 0);
     }, 500);
   };
 
