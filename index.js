@@ -115,12 +115,12 @@ function Construct(options, callback) {
 
     return function() {
       fb.setAccessToken(access_token);
-      fb.api(pageUrl, { fields: ['posts', 'picture']} , function (response) {
-      if(response.error) {
-        //item._failed = true;
-        console.log(chalk.red('[Apostrophe Facebook] ') + 'The error is', response.err)
-        res.statusCode = 404;
-        return res.send('incorrect url');
+
+      fb.api(item._name, { fields: ['posts', 'picture']} , function (res) {
+      if(res.error) {
+        item._failed = true;
+        console.log(chalk.red('[Apostrophe Facebook] ') + 'The error is', res.error);
+        return callback(res.err);
       }
 
       //Make this a bit more fault tolerant.
