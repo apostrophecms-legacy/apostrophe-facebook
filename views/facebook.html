@@ -20,13 +20,16 @@
 <ul class="apos-facebook-posts" data-apos-facebook-posts>
   {# Facebook posts are magicked here by the widget player in content.js, which #}
   {# clones the template post below as needed, removing the apos-template class #}
+  <span class="apos-facebook-loader" data-apos-facebook-loader></span>
   <li class="apos-facebook-post apos-template" data-apos-facebook-post>
+
     {# Here's a basic template for grabbing some posts #}
     <a target="blank" data-apos-facebook-link>
       <h4 class="apos-facebook-title" data-apos-facebook-title></h4>
       <h5 class="apos-facebook-date" data-apos-facebook-date></h5>
       <div class="apos-facebook-photo" data-apos-facebook-photo><img src=""></div>
       <div class="apos-facebook-body" data-apos-facebook-body></div>
+      <span class="apos-facebook-icon icon-facebook-sign"></span>
     </a>
   </li>
 

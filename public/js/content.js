@@ -1,7 +1,10 @@
 apos.widgetPlayers.facebook = function($el) {
-  var data = apos.getWidgetData($el);
-  var pageUrl = data.pageUrl;
-  //var limit = data.limit;
+
+  // N.B. Even though this is a player, it's not getting refreshed
+  // once it's been created. Hrmmm.
+
+  var data = apos.getWidgetData($el),
+      pageUrl = data.pageUrl;
 
   $.getJSON(
     // Note the trailing ? is significant. It tells jQuery to automatically
@@ -15,8 +18,10 @@ apos.widgetPlayers.facebook = function($el) {
     },
     function(posts) {
 
+      //Define our posts object as well as the template and loader.
       var $posts = $el.find('[data-apos-facebook-posts]'),
-          $template = $posts.find('[data-apos-facebook-post].apos-template');
+          $postTemplate = $posts.find('[data-apos-facebook-post].apos-template'),
+          $loader = $posts.find('[data-apos-facebook-loader]');
 
       if (!posts.length) {
         $el.trigger('aposFacebookNull');
@@ -25,13 +30,17 @@ apos.widgetPlayers.facebook = function($el) {
 
       function init(){
         removePlaceholder();
-        //buildTemplate();
         generatePostMarkup(posts);
       }
 
       function removePlaceholder(){
         $posts.find('[data-apos-facebook-placeholder]').remove();
       }
+
+      function removeTemplate(){
+        $postTemplate.remove();
+      };
+
 
       function buildTemplate($template){
         $template.$title = $template.find('[data-apos-facebook-title]');
@@ -43,20 +52,39 @@ apos.widgetPlayers.facebook = function($el) {
       }
 
       function cloneTemplate($obj){
-        $obj.removeClass('apos-template');
         $clone = $obj.clone();
-        buildTemplate($clone);
-        console.log("Now the clone is: ", $clone);
-        return $clone;
+        $clone.removeClass('apos-template');
+        clone = buildTemplate($clone);
+        return clone;
       }
 
-      function generatePostMarkup(posts){
-        console.log(posts);
-        _.each(posts, function(post){
-          console.log("You're currently processing: ", post);
-          //Clone our Template
-          var $post = cloneTemplate($template);
+      function getImageUrl(postId, callback){
+        var id = postId;
+        $.getJSON(
+          '/apos-facebook/photo',
+          { id: id},
+          function(response) {
+            return callback(response);
+          }
+        );
+      }
 
+      function getFacebookDate(date){
+        var postDate = new Date(date),
+            postMonth = postDate.getMonth() + 1,
+            postDay = postDate.getDate(),
+            postYear = postDate.getFullYear(),
+            thisYear = new Date().getFullYear();
+
+        return ((postYear != thisYear ) ? postMonth +"/"+postDay+"/"+postYear: postMonth +"/"+postDay);
+      }
+
+
+      function generatePostMarkup(posts){
+        _.each(posts, function(post){
+          //Clone our Template
+          var $post = cloneTemplate($postTemplate);
+          //console.log("The post should be:", $post);
           //Add Title
           if(post.name){
             $post.$title.text(post.name);
@@ -69,16 +97,21 @@ apos.widgetPlayers.facebook = function($el) {
             $post.$link.attr('href', post.link);
           }
 
-          //Add Date --> Need to parse this.
+          //Add Date
           if(post.date){
-            $post.$date.text(post.date || '');
+            var postDate = getFacebookDate(post.date);
+            $post.$date.text(postDate || '');
           } else {
             $post.$date.remove();
           }
 
-          //Add Photo
-          if(post.photo){
-            $post.$photo.find('img').attr('src', '/apos-facebook/photo/'+post.id);
+          //Add Photo based on type
+          if (post.type === "photo"){
+            getImageUrl(post.object_id, function(result){
+              $post.$photo.find('img').attr('src', result);
+            });
+          } else if(post.photo){
+            $post.$photo.find('img').attr('src', post.photo);
           }
 
           //Add Body
@@ -88,11 +121,17 @@ apos.widgetPlayers.facebook = function($el) {
             $post.$body.remove();
           }
 
-          //Add Type
-          $post.data('post-type', post.type || '');
+          //Add Type --> Arguably, this could add a class as well.
+          $post.attr('data-post-type', post.type || '');
+
+          //If there's still a loader, kill it.
+          $loader.remove();
+
           //Add That to the List
+
           $posts.append($post);
         });
+        removeTemplate();
       };
 
       init();

@@ -19,9 +19,11 @@ function Construct(options, callback) {
   if (!options.fbAppId || !options.fbAppSecret) {
     console.error('WARNING: you must configure the fbAppId and fbAppSecret options to use the Facebook widget.');
   }
+  var cacheLifetime = options.cacheLifetime || 30;
   var self = this;
   self._apos = apos;
   self._app = app;
+  var limit;
   var lifetime = options.lifetime ? options.lifetime : 60000;
 
   var access_token = options.fbAppId+'|'+options.fbAppSecret;
@@ -61,18 +63,20 @@ function Construct(options, callback) {
 
 
   //This needs to return a better image.
-  app.get('/apos-facebook/photo/:id', function(req, res){
-    var postId = req.params.id;
-    console.log("You are running");
-    var requestUrl = 'https://graph.facebook.com/'+postId+'/picture?type=large&access_token='+access_token;
-    console.log(requestUrl);
-    request('https://graph.facebook.com/'+postId+'/picture?type=large&access_token='+access_token, function(err, response, body){
+  app.get('/apos-facebook/photo', function(req, res){
+    //Grab the post ID and build out a request URL.
+    var postId = req.query.id,
+        requestUrl = 'https://graph.facebook.com/'+postId+'?access_token='+access_token;
+
+    request(requestUrl, function(err, response, body){
       if (err) {
+        res.send(404);
         return console.log("The error is", err);
       }
       if(response.statusCode === 200){
-        res.type('jpg');
-        return res.send(body);
+        //Let's parse and send the image's URL.
+        var postObj = JSON.parse(body);
+        return res.json(postObj.source);
       }
     })
 
@@ -91,7 +95,7 @@ function Construct(options, callback) {
     if (_.has(facebookCache, pageUrl)) {
       var cache = facebookCache[pageUrl];
       var now = (new Date()).getTime();
-      if (now - cache.when > cacheLifetime * 1000) {
+      if (now - cache.when > lifetime * 1000) {
         delete facebookCache[pageUrl];
       } else {
         return res.send(cache.results);
@@ -111,27 +115,29 @@ function Construct(options, callback) {
     }
 
     // Let's try redefining the URL scheme here.
-    pageUrl = nameString[1];
+    var pageName = nameString[1];
+    //console.log(pageName);
 
-    return function() {
+    return function(item) {
       fb.setAccessToken(access_token);
 
-      fb.api(item._name, { fields: ['posts', 'picture']} , function (res) {
-      if(res.error) {
+      fb.api(pageName, { fields: ['posts', 'picture']} , function (response) {
+      if(response.error) {
         item._failed = true;
-        console.log(chalk.red('[Apostrophe Facebook] ') + 'The error is', res.error);
-        return callback(res.err);
+        console.log(chalk.red('[Apostrophe Facebook] ') + 'The error is', response.error);
+        return callback(response.error);
       }
 
       //Make this a bit more fault tolerant.
       var posts = response.posts.data.slice(0, limit) || [];
 
       var results = posts.map(function(post) {
-        if (post.picture) {
-          post.picture = post.picture.replace('_s.jpg', '_n.jpg'); //Get the bigger photo url.
-        }
+        // if (post.picture) {
+        //   post.picture = post.picture.replace('_s.jpg', '_n.jpg'); //Get the bigger photo url.
+        // }
         return {
           id: post.id,
+          object_id: post.object_id,
           photo: post.picture,
           body: post.message,
           date: post.updated_time,

@@ -1,42 +1,90 @@
-/* Note heavy use of ems to make it easier to scale these down for preview */
+/* ---------------------------------------------------------------*/
+/* ---------------------------------------------------------------*/
+// The Apostrophe Facebook Stock Styles
+/* ---------------------------------------------------------------*/
+/* ---------------------------------------------------------------*/
 
-.apos-widget.apos-rss
+// N.B. To remove these styles for your project, simply copy the template
+// and remove any classes in the template. Class are the CSS, data-attributes
+// are the JavaScript.
+
+.apos-facebook-loader
 {
-  background-color: #eee;
-  text-align: left;
+  display: block;
+  height: 50px;
+  width: 100%;
+  background: url('/modules/apos/images/spinner.gif') no-repeat center center;
 }
 
-.apos-rss-entries
+.apos-facebook-post
 {
-  list-style: none;
+  position: relative;
+  max-width: 720px; //The standard photo width;
+  display: block;
+  margin: 0 auto;
 }
 
-.apos-rss-entry
+.apos-facebook-title
 {
-  padding: 0.5em;
-  border: 0.2em solid #ddd;
-  border-radius: 0.6em;
-  margin-bottom: 10px;
+  display: inline-block;
+  width: 90%;
+  padding-left: 0 !important;
+}
+.apos-facebook-date
+{
+  display: inline-block;
+  width: 9%;
+  float: right; //To Catch the Title-less case
+}
+.apos-facebook-photo
+{
+
+}
+.apos-facebook-body
+{
+  padding: 15px 0 30px;
+  color: #666;
 }
 
-.apos-rss-meta
+.apos-facebook-icon
 {
-  list-style: none;
+  position: absolute;
+  right: 5px;
+  bottom: 20px;
+  color: #666;
+  &:before
+  {
+    font-size: 20px;
+  }
 }
 
-.apos-rss-title
+/* ---------------------------------------------------------------*/
+// The Type Styles
+/* ---------------------------------------------------------------*/
+.apos-facebook-post[data-post-type="link"]
 {
-  font-size: 125%;
+  padding-bottom: 30px;
+
+  .apos-facebook-photo,
+  .apos-facebook-body
+  {
+    display: inline-block;
+    max-width: 68%;
+    vertical-align: top;
+    padding: 0;
+  }
+  .apos-facebook-photo
+  {
+    max-width: 30%;
+    margin-right: 1%;
+  }
 }
 
-.apos-rss-date
+.apos-facebook-post[data-post-type="photo"]
 {
-  font-size: 75%;
-}
-
-.apos-rss-error
-{
-  background-color: #fee;
-  font-size: 125%;
-  padding: 0.5em;
+  img
+  {
+    display: block;
+    margin: 0 auto;
+  }
 }
