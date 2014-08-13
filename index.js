@@ -119,37 +119,43 @@ function Construct(options, callback) {
     //console.log(pageName);
 
     return function(item) {
-      fb.setAccessToken(access_token);
+      //fb.setAccessToken(access_token);
 
-      fb.api(pageName, { fields: ['posts', 'picture']} , function (response) {
-      if(response.error) {
-        item._failed = true;
-        console.log(chalk.red('[Apostrophe Facebook] ') + 'The error is', response.error);
-        return callback(response.error);
-      }
+      var requestUrl = 'https://graph.facebook.com/'+pageName+'/posts?access_token='+access_token;
 
-      //Make this a bit more fault tolerant.
-      var posts = response.posts.data.slice(0, limit) || [];
+      request(requestUrl, function(err, response, body){
+        if (err) {
+          item._failed = true;
+          console.log(chalk.red('[Apostrophe Facebook] ') + 'The error is', response.error);
+          return callback(response.error);
+        }
+        if(response.statusCode === 200){
 
-      var results = posts.map(function(post) {
-        // if (post.picture) {
-        //   post.picture = post.picture.replace('_s.jpg', '_n.jpg'); //Get the bigger photo url.
-        // }
-        return {
-          id: post.id,
-          object_id: post.object_id,
-          photo: post.picture,
-          body: post.message,
-          date: post.updated_time,
-          link: post.link,
-          type: post.type,
-          name: post.name,
-          caption: post.caption,
-          description: post.description
-        };
-      });
-      facebookCache[pageUrl] = { when: (new Date()).getTime(),  results: results };
-      return res.send(results);
+          var parsedBody = JSON.parse(body),
+              // Unfortunately, we need to filter out trivial statuses on our end.
+              filteredPosts = _.filter(parsedBody.data, function(post){
+                return post.message;
+                //return post.type !== "status";
+              });
+              posts = filteredPosts.slice(0, limit) || [];
+
+          var results = posts.map(function(post) {
+            return {
+              id: post.id,
+              object_id: post.object_id,
+              photo: post.picture,
+              body: post.message,
+              date: post.updated_time,
+              link: post.link,
+              type: post.type,
+              name: post.name,
+              caption: post.caption,
+              description: post.description
+            };
+          });
+          facebookCache[pageUrl] = { when: (new Date()).getTime(),  results: results };
+          return res.send(results);
+        }
       });
     }();
   });
