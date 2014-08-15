@@ -8,7 +8,7 @@ apostrophe-facebook is a widget for the [Apostrophe](http://github.com/punkave/a
 ### Configuring the Module
 In order to run the Apostorphe Facebook app in your Apostrophe project, you'll need to register your app with Facebook through their [developer portal](https://developers.facebook.com/). Once you've registered your app, you'll need both the App ID and the App Secret in order to configure the Apostrophe Facebook module. That configuration happens in the app.js of your project along with the other modules:
 
-```
+```js
 modules: {
   apostrophe-facebook: {
     fbAppId: 'xxxxxxxxxxxxxxx',
@@ -18,7 +18,7 @@ modules: {
 ```
 ### Including the Widget in your Templates
 Now that we've got the widget configured, we can simply add it to our template and use the bundled template in the module (we'll override that later). In your template, simply add "apostrophe-facebook" to the controls array in your `aposArea` call:
-```
+```js
 {{ aposArea(page, 'main', { controls: [ 'style', 'bold', 'italic', 'facebook' ] } ) }}
 ```
 
@@ -26,7 +26,7 @@ Now that we've got the widget configured, we can simply add it to our template a
 ### Extending the Template
 Out of the box, the apostrophe-facebook module depends on a data-attribute driven template to render a Facebook feed on the client side (which allows the widget to load independently of the page). Here's the basic template included in the module itself:
 
-```
+```js
 <ul class="apos-facebook-posts" data-apos-facebook-posts>
   <span class="apos-facebook-loader" data-apos-facebook-loader></span>
   <li class="apos-facebook-post apos-template" data-apos-facebook-post>
@@ -45,7 +45,7 @@ Any of the markup in this template can be adapted to your project's needs so lon
 Because the apostrophe-facebook widget is loaded on the client-side, we're taking advantage of the `apos.widgetPlayers` object to load the widget, specifically in the `apos.widgetPlayers.facebook` method. This means that tinkering with the client-side JavaScript could potentially interfere with the widget's default loading behavior. Sometime, though, you just need to run some specific JavaScript and you want it to run everytime the widget is refreshed (that's the real beauty of the `widgetPlayers`). Enter `.afterLoad()`.
 
 `apos.widgetPlayers.facebook.afterLoad()` allows you to add your own custom callback to the widgetPlayer. This function will fire at the conclusion of the load and you have access to `$el` as well as the `posts` object which is the response that our server returns when the widget loads. Here's an example that you might find in a `site.js` file:
-```
+```js
 apos.widgetPlayers.facebook.afterLoad = function($el, posts){
   //Make the first post in the widget 
   $el.find('[data-apos-post]').eq(0).css('color', 'red');
