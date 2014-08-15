@@ -57,7 +57,7 @@ apos.widgetPlayers.facebook.afterLoad = function($el, posts){
 ## TO-DO
 - [x] Build it
 - [x] Publish to NPM
-- [ ] Switch loader logic to browser-side player (like Twitter)
+- [x] Switch loader logic to browser-side player (like Twitter)
 - [ ] Clean up caching to make sure you get new data on save
 - [ ] Build some nice basic styles
 - [ ] Write some tests?
