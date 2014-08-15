@@ -40,9 +40,19 @@ Out of the box, the apostrophe-facebook module depends on a data-attribute drive
   </li>
 </ul>
 ```
-Any of hthe markup in this template can be adapted to your project's needs so long as you include the appropriate data-attributes in this template (you can also omit anything that doesn't fit your needs). Note that the classes in this example are there only for the default styles and therefore should likely be changed in your projects template. To create a project-level template, simply add a file called `facebook.html` in the views folder of your project-level override of the apostrophe-facebook module: `lib > modules > apostrophe-facebooks > views`.
+Any of the markup in this template can be adapted to your project's needs so long as you include the appropriate data-attributes in this template (you can also omit anything that doesn't fit your needs). Note that the classes in this example are there only for the default styles and therefore should likely be changed in your projects template. To create a project-level template, simply add a file called `facebook.html` in the views folder of your project-level override of the apostrophe-facebook module: `lib > modules > apostrophe-facebooks > views`.
 ### Dynamic Changes with .afterLoad()
+Because the apostrophe-facebook widget is loaded on the client-side, we're taking advantage of the `apos.widgetPlayers` object to load the widget, specifically in the `apos.widgetPlayers.facebook` method. This means that tinkering with the client-side JavaScript could potentially interfere with the widget's default loading behavior. Sometime, though, you just need to run some specific JavaScript and you want it to run everytime the widget is refreshed (that's the real beauty of the `widgetPlayers`). Enter `.afterLoad()`.
 
+`apos.widgetPlayers.facebook.afterLoad()` allows you to add your own custom callback to the widgetPlayer. This function will fire at the conclusion of the load and you have access to `$el` as well as the `posts` object which is the response that our server returns when the widget loads. Here's an example that you might find in a `site.js` file:
+```
+apos.widgetPlayers.facebook.afterLoad = function($el, posts){
+  //Make the first post in the widget 
+  $el.find('[data-apos-post]').eq(0).css('color', 'red');
+  //Send the posts object to the console for inspection
+  console.log(posts);
+}
+```
 
 ## TO-DO
 - [x] Build it
