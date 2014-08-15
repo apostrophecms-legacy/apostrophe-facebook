@@ -26,7 +26,7 @@ Now that we've got the widget configured, we can simply add it to our template a
 ### Extending the Template
 Out of the box, the apostrophe-facebook module depends on a data-attribute driven template to render a Facebook feed on the client side (which allows the widget to load independently of the page). Here's the basic template included in the module itself:
 
-```js
+```html
 <ul class="apos-facebook-posts" data-apos-facebook-posts>
   <span class="apos-facebook-loader" data-apos-facebook-loader></span>
   <li class="apos-facebook-post apos-template" data-apos-facebook-post>
