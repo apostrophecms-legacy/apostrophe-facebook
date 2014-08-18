@@ -1,5 +1,4 @@
 apos.widgetPlayers.facebook = function($el) {
-
   // N.B. Even though this is a player, it's not getting refreshed
   // once it's been created. Hrmmm.
 
@@ -7,10 +6,6 @@ apos.widgetPlayers.facebook = function($el) {
       pageUrl = data.pageUrl;
 
   $.getJSON(
-    // Note the trailing ? is significant. It tells jQuery to automatically
-    // create a JSONP callback function and obtain the result via a cross-domain
-    // script tag so we can talk to twitter in older browsers without a
-    // security error
     '/apos-facebook/feed',
     {
       limit: (data.limit || 5),
@@ -132,9 +127,14 @@ apos.widgetPlayers.facebook = function($el) {
           $posts.append($post);
         });
         removeTemplate();
+        apos.widgetPlayers.facebook.afterLoad($el, posts);
       };
 
       init();
     }
   );
+}
+
+apos.widgetPlayers.facebook.afterLoad = function($el, posts){
+  //You can do whatever you want here.
 }
