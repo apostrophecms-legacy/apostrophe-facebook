@@ -108,7 +108,8 @@ function Construct(options, callback) {
     }
 
     // Beware the regexs of Joel. -j
-    var nameString = pageUrl.match(/facebook.com\/(\w.+)/);
+    //var nameString = pageUrl.match(/facebook.com\/(\w.+)/);
+    var nameString = pageUrl.substr(pageUrl.lastIndexOf('/') + 1);
     if (!nameString) {
       res.statusCode = 404;
       console.log(chalk.red('[Apostrophe Facebook] ') + 'The url seems to be incorrect: ', pageUrl);
@@ -116,7 +117,7 @@ function Construct(options, callback) {
     }
 
     // Let's try redefining the URL scheme here.
-    var pageName = nameString[1];
+    var pageName = nameString;
 
     return function(item) {
       //fb.setAccessToken(access_token);
