@@ -92,8 +92,8 @@ function Construct(options, callback) {
       return res.send('not found');
     }
 
-    if (_.has(facebookCache, pageUrl)) {
-      var cache = facebookCache[pageUrl];
+    if (_.has(facebookCache, pageUrl+limit)) {
+      var cache = facebookCache[pageUrl+limit];
       var now = (new Date()).getTime();
       if (now - cache.when > lifetime * 1000) {
         delete facebookCache[pageUrl];
@@ -154,7 +154,7 @@ function Construct(options, callback) {
               description: post.description
             };
           });
-          facebookCache[pageUrl] = { when: (new Date()).getTime(),  results: results };
+          facebookCache[pageUrl+limit] = { when: (new Date()).getTime(),  results: results };
           return res.send(results);
         }
       });
