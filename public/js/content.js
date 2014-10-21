@@ -65,14 +65,11 @@ apos.widgetPlayers.facebook = function($el) {
       }
 
       function getFacebookDate(date){
-        console.log("It was: ", date);
-
         var postDate = moment(date, 'MM-DD-YYYY'),
             postMonth = postDate.month(),
             postDay = postDate.date(),
             postYear = postDate.year(),
             thisYear = moment().year();
-        console.log("For a second it was: ", postDate);
         return ((postYear != thisYear ) ? postMonth +"/"+postDay+"/"+postYear: postMonth +"/"+postDay);
       }
 
@@ -97,7 +94,6 @@ apos.widgetPlayers.facebook = function($el) {
           //Add Date
           if(post.date){
             var postDate = getFacebookDate(post.date);
-            console.log("Now it's: ", postDate);
             $post.$date.text(postDate || '');
           } else {
             $post.$date.remove();
