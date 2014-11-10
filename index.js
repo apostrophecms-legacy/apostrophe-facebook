@@ -5,6 +5,7 @@ var _ = require('lodash');
 var request = require('request');
 var chalk = require('chalk');
 var cache = {};
+var moment = require('moment');
 
 module.exports = function(options, callback) {
   return new Construct(options, callback);
@@ -60,6 +61,15 @@ function Construct(options, callback) {
 
   var facebookCache = {};
   var pageUrl;
+
+  self.sanitizeDate = function(date){
+    var postDate = moment(date, 'MM-DD-YYYY'),
+        postMonth = postDate.month(),
+        postDay = postDate.date(),
+        postYear = postDate.year(),
+        thisYear = moment().year();
+    return ((postYear != thisYear ) ? postMonth +"/"+postDay+"/"+postYear: postMonth +"/"+postDay);
+  }
 
 
   //This needs to return a better image.
@@ -146,7 +156,7 @@ function Construct(options, callback) {
               object_id: post.object_id,
               photo: post.picture,
               body: post.message,
-              date: post.updated_time,
+              date: self.sanitizeDate(moment(post.updated_time).format('MM/DD/YYYY')),
               link: post.link,
               type: post.type,
               name: post.name,
