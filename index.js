@@ -64,7 +64,7 @@ function Construct(options, callback) {
 
   self.sanitizeDate = function(date){
     var postDate = moment(date, 'MM-DD-YYYY'),
-        postMonth = postDate.month(),
+        postMonth = postDate.month() + 1,
         postDay = postDate.date(),
         postYear = postDate.year(),
         thisYear = moment().year();
