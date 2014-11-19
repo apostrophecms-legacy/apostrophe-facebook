@@ -64,6 +64,11 @@ apos.widgetPlayers.facebook = function($el) {
         );
       }
 
+      function stripLinks(text){
+        text = text.replace(/^(\[url=)?(https?:\/\/)?(www\.|\S+?\.)(\S+?\.)?\S+$\s*/mg, '');
+        return text;
+      }
+
       function generatePostMarkup(posts){
         _.each(posts, function(post){
           //Clone our Template
@@ -99,7 +104,11 @@ apos.widgetPlayers.facebook = function($el) {
 
           //Add Body
           if(post.body){
-            $post.$body.html(post.body);
+            if (post.type === 'link' || post.type ==='video') {
+              $post.$body.html(stripLinks(post.body));
+            } else {
+              $post.$body.html(post.body);
+            }
           } else {
             $post.$body.remove();
           }
