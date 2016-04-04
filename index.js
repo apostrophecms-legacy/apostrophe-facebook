@@ -77,7 +77,6 @@ function Construct(options, callback) {
     //Grab the post ID and build out a request URL.
     var postId = req.query.id,
         requestUrl = 'https://graph.facebook.com/'+postId+'?access_token='+access_token;
-
     request(requestUrl, function(err, response, body){
       if (err) {
         res.send(404);
@@ -117,58 +116,54 @@ function Construct(options, callback) {
       return res.send('offline');
     }
 
-    // Beware the regexs of Joel. -j
-    //var nameString = pageUrl.match(/facebook.com\/(\w.+)/);
-    var nameString = pageUrl.substr(pageUrl.lastIndexOf('/') + 1);
+    var parsed = require('url').parse(pageUrl);
+    var nameString = require('path').basename(parsed.pathname);
     if (!nameString) {
       res.statusCode = 404;
       console.log(chalk.red('[Apostrophe Facebook] ') + 'The url seems to be incorrect: ', pageUrl);
       return res.send('incorrect url');
     }
 
-    // Let's try redefining the URL scheme here.
-    var pageName = nameString;
+    //fb.setAccessToken(access_token);
 
-    return function(item) {
-      //fb.setAccessToken(access_token);
+    var requestUrl = 'https://graph.facebook.com/'+nameString+'/posts?access_token='+access_token;
 
-      var requestUrl = 'https://graph.facebook.com/'+pageName+'/posts?access_token='+access_token;
-
-      request(requestUrl, function(err, response, body){
-        if (err) {
-          item._failed = true;
-          console.log(chalk.red('[Apostrophe Facebook] ') + 'The error is', response.error);
-          return callback(response.error);
-        }
-        if(response.statusCode === 200){
-
-          var parsedBody = JSON.parse(body),
-              // Unfortunately, we need to filter out trivial statuses on our end.
-              filteredPosts = _.filter(parsedBody.data, function(post){
-                return post.message;
-                //return post.type !== "status";
-              });
-              posts = filteredPosts.slice(0, limit) || [];
-
-          var results = posts.map(function(post) {
-            return {
-              id: post.id,
-              object_id: post.object_id,
-              photo: post.picture,
-              body: post.message,
-              date: self.sanitizeDate(moment(post.updated_time).format('MM/DD/YYYY')),
-              link: post.link,
-              type: post.type,
-              name: post.name,
-              caption: post.caption,
-              description: post.description
-            };
-          });
-          facebookCache[pageUrl+limit] = { when: (new Date()).getTime(),  results: results };
-          return res.send(results);
-        }
+    return request(requestUrl, function(err, response, body){
+      if (err) {
+        item._failed = true;
+        console.log(chalk.red('[Apostrophe Facebook] ') + 'The error is', response.error);
+        return callback(response.error);
+      }
+      if (response.statusCode !== 200) {
+        console.error(response.statusCode);
+        console.error(body);
+        return res.send('error from facebook');
+      }
+      var parsedBody = JSON.parse(body);
+      // Unfortunately, we need to filter out trivial statuses on our end.
+      var filteredPosts = _.filter(parsedBody.data, function(post){
+        return post.message;
+        //return post.type !== "status";
       });
-    }();
+      var posts = filteredPosts.slice(0, limit) || [];
+
+      var results = posts.map(function(post) {
+        return {
+          id: post.id,
+          object_id: post.object_id,
+          photo: post.picture,
+          body: post.message,
+          date: self.sanitizeDate(moment(post.updated_time).format('MM/DD/YYYY')),
+          link: post.link,
+          type: post.type,
+          name: post.name,
+          caption: post.caption,
+          description: post.description
+        };
+      });
+      facebookCache[pageUrl+limit] = { when: (new Date()).getTime(),  results: results };
+      return res.send(results);
+    });
   });
 
   self.renderWidget = function(data) {
