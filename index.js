@@ -76,7 +76,8 @@ function Construct(options, callback) {
   app.get('/apos-facebook/photo', function(req, res){
     //Grab the post ID and build out a request URL.
     var postId = req.query.id,
-        requestUrl = 'https://graph.facebook.com/'+postId+'?access_token='+access_token;
+        requestUrl = 'https://graph.facebook.com/' + postId + '?access_token=' +
+        access_token + '&fields=source,name,created_time';
     request(requestUrl, function(err, response, body){
       if (err) {
         res.send(404);
@@ -85,7 +86,7 @@ function Construct(options, callback) {
       if(response.statusCode === 200){
         //Let's parse and send the image's URL.
         var postObj = JSON.parse(body);
-        return res.json(postObj.source);
+        return res.json(postObj);
       }
     })
 
@@ -126,7 +127,9 @@ function Construct(options, callback) {
 
     //fb.setAccessToken(access_token);
 
-    var requestUrl = 'https://graph.facebook.com/'+nameString+'/posts?access_token='+access_token;
+    var requestUrl = 'https://graph.facebook.com/' + nameString +
+      '/posts?access_token=' + access_token +
+      '&fields=message,picture,link,object_id,updated_time,type,name,caption,description';
 
     return request(requestUrl, function(err, response, body){
       if (err) {
