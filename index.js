@@ -75,9 +75,10 @@ function Construct(options, callback) {
   //This needs to return a better image.
   app.get('/apos-facebook/photo', function(req, res){
     //Grab the post ID and build out a request URL.
-    var postId = req.query.id,
-        requestUrl = 'https://graph.facebook.com/' + postId + '?access_token=' +
-        access_token + '&fields=source,name,created_time';
+    var postId = req.query.id;
+    var requestUrl = 'https://graph.facebook.com/' + postId + '?access_token=' +
+      access_token + '&fields=source,name,created_time';
+
     request(requestUrl, function(err, response, body){
       if (err) {
         res.send(404);
@@ -124,8 +125,6 @@ function Construct(options, callback) {
       console.log(chalk.red('[Apostrophe Facebook] ') + 'The url seems to be incorrect: ', pageUrl);
       return res.send('incorrect url');
     }
-
-    //fb.setAccessToken(access_token);
 
     var requestUrl = 'https://graph.facebook.com/' + nameString +
       '/posts?access_token=' + access_token +
