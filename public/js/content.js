@@ -53,7 +53,7 @@ apos.widgetPlayers.facebook = function($el) {
         return clone;
       }
 
-      function getImageUrl(postId, callback){
+      function getImage (postId, callback) {
         var id = postId;
         $.getJSON(
           '/apos-facebook/photo',
@@ -92,11 +92,11 @@ apos.widgetPlayers.facebook = function($el) {
           } else {
             $post.$date.remove();
           }
-
           //Add Photo based on type
           if (post.type === "photo"){
-            getImageUrl(post.object_id, function(result){
-              $post.$photo.find('img').attr('src', result);
+            getImage(post.object_id, function (result) {
+              $post.$photo.find('img').attr('src', result.source);
+              $post.$photo.find('img').attr('alt', result.name);
             });
           } else if(post.photo){
             $post.$photo.find('img').attr('src', post.photo);
