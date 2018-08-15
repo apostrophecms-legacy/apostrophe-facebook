@@ -132,7 +132,6 @@ function Construct(options, callback) {
 
     return request(requestUrl, function(err, response, body){
       if (err) {
-        item._failed = true;
         console.log(chalk.red('[Apostrophe Facebook] ') + 'The error is', response.error);
         return callback(response.error);
       }
