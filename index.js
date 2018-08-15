@@ -82,7 +82,7 @@ function Construct(options, callback) {
     request(requestUrl, function(err, response, body){
       if (err) {
         res.send(404);
-        return console.log("The error is", err);
+        return console.log(chalk.red('[Apostrophe Facebook] ') + 'The error is: ', err);
       }
       if(response.statusCode === 200){
         //Let's parse and send the image's URL.
@@ -90,7 +90,6 @@ function Construct(options, callback) {
         return res.json(postObj);
       }
     })
-
   });
 
   app.get('/apos-facebook/feed', function(req, res) {
