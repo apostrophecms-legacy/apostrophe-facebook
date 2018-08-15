@@ -20,7 +20,7 @@ function Construct(options, callback) {
   if (!options.fbAppId || !options.fbAppSecret) {
     console.error('WARNING: you must configure the fbAppId and fbAppSecret options to use the Facebook widget.');
   }
-  var cacheLifetime = options.cacheLifetime || 30;
+
   var self = this;
   self._apos = apos;
   self._app = app;
