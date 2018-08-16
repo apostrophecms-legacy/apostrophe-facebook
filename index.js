@@ -20,7 +20,7 @@ function Construct(options, callback) {
   if (!options.fbAppId || !options.fbAppSecret) {
     console.error('WARNING: you must configure the fbAppId and fbAppSecret options to use the Facebook widget.');
   }
-  var cacheLifetime = options.cacheLifetime || 30;
+
   var self = this;
   self._apos = apos;
   self._app = app;
@@ -82,7 +82,7 @@ function Construct(options, callback) {
     request(requestUrl, function(err, response, body){
       if (err) {
         res.send(404);
-        return console.log("The error is", err);
+        return console.error(chalk.red('[Apostrophe Facebook] ') + 'The error is: ', err);
       }
       if(response.statusCode === 200){
         //Let's parse and send the image's URL.
@@ -90,24 +90,24 @@ function Construct(options, callback) {
         return res.json(postObj);
       }
     })
-
   });
 
   app.get('/apos-facebook/feed', function(req, res) {
     var pageUrl = apos.sanitizeString(req.query.pageUrl);
     var limit = apos.sanitizeString(req.query.limit);
+    var cacheKey = pageUrl + limit;
 
     if (!pageUrl.length) {
       res.statusCode = 404;
-      console.log(chalk.red('[Apostrophe Facebook] ') + 'It looks like you forgot to enter a URL');
+      console.error(chalk.red('[Apostrophe Facebook] ') + 'It looks like you forgot to enter a URL');
       return res.send('not found');
     }
 
-    if (_.has(facebookCache, pageUrl+limit)) {
-      var cache = facebookCache[pageUrl+limit];
+    if (_.has(facebookCache, cacheKey)) {
+      var cache = facebookCache[cacheKey];
       var now = (new Date()).getTime();
       if (now - cache.when > lifetime * 1000) {
-        delete facebookCache[pageUrl];
+        delete facebookCache[cacheKey];
       } else {
         return res.send(cache.results);
       }
@@ -122,7 +122,7 @@ function Construct(options, callback) {
     var nameString = require('path').basename(parsed.pathname);
     if (!nameString) {
       res.statusCode = 404;
-      console.log(chalk.red('[Apostrophe Facebook] ') + 'The url seems to be incorrect: ', pageUrl);
+      console.error(chalk.red('[Apostrophe Facebook] ') + 'The url seems to be incorrect: ', pageUrl);
       return res.send('incorrect url');
     }
 
@@ -132,8 +132,7 @@ function Construct(options, callback) {
 
     return request(requestUrl, function(err, response, body){
       if (err) {
-        item._failed = true;
-        console.log(chalk.red('[Apostrophe Facebook] ') + 'The error is', response.error);
+        console.error(chalk.red('[Apostrophe Facebook] ') + 'The error is', response.error);
         return callback(response.error);
       }
       if (response.statusCode !== 200) {
@@ -142,10 +141,10 @@ function Construct(options, callback) {
         return res.send('error from facebook');
       }
       var parsedBody = JSON.parse(body);
+
       // Unfortunately, we need to filter out trivial statuses on our end.
       var filteredPosts = _.filter(parsedBody.data, function(post){
         return post.message;
-        //return post.type !== "status";
       });
       var posts = filteredPosts.slice(0, limit) || [];
 
@@ -163,7 +162,12 @@ function Construct(options, callback) {
           description: post.description
         };
       });
-      facebookCache[pageUrl+limit] = { when: (new Date()).getTime(),  results: results };
+
+      facebookCache[cacheKey] = {
+        when: (new Date()).getTime(),
+        results: results
+      };
+
       return res.send(results);
     });
   });
