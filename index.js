@@ -82,7 +82,7 @@ function Construct(options, callback) {
     request(requestUrl, function(err, response, body){
       if (err) {
         res.send(404);
-        return console.log(chalk.red('[Apostrophe Facebook] ') + 'The error is: ', err);
+        return console.error(chalk.red('[Apostrophe Facebook] ') + 'The error is: ', err);
       }
       if(response.statusCode === 200){
         //Let's parse and send the image's URL.
@@ -99,7 +99,7 @@ function Construct(options, callback) {
 
     if (!pageUrl.length) {
       res.statusCode = 404;
-      console.log(chalk.red('[Apostrophe Facebook] ') + 'It looks like you forgot to enter a URL');
+      console.error(chalk.red('[Apostrophe Facebook] ') + 'It looks like you forgot to enter a URL');
       return res.send('not found');
     }
 
@@ -122,7 +122,7 @@ function Construct(options, callback) {
     var nameString = require('path').basename(parsed.pathname);
     if (!nameString) {
       res.statusCode = 404;
-      console.log(chalk.red('[Apostrophe Facebook] ') + 'The url seems to be incorrect: ', pageUrl);
+      console.error(chalk.red('[Apostrophe Facebook] ') + 'The url seems to be incorrect: ', pageUrl);
       return res.send('incorrect url');
     }
 
@@ -132,7 +132,7 @@ function Construct(options, callback) {
 
     return request(requestUrl, function(err, response, body){
       if (err) {
-        console.log(chalk.red('[Apostrophe Facebook] ') + 'The error is', response.error);
+        console.error(chalk.red('[Apostrophe Facebook] ') + 'The error is', response.error);
         return callback(response.error);
       }
       if (response.statusCode !== 200) {
