@@ -71,28 +71,28 @@ function Construct(options, callback) {
     return ((postYear != thisYear ) ? postMonth +"/"+postDay+"/"+postYear: postMonth +"/"+postDay);
   }
 
-
-  //This needs to return a better image.
-  app.get('/apos-facebook/photo', function(req, res){
-    //Grab the post ID and build out a request URL.
-    var postId = req.query.id;
-    var requestUrl = 'https://graph.facebook.com/' + postId + '?access_token=' +
+  if (!options.disabled) {
+    //This needs to return a better image.
+    app.get('/apos-facebook/photo', function(req, res){
+      //Grab the post ID and build out a request URL.
+      var postId = req.query.id;
+      var requestUrl = 'https://graph.facebook.com/' + postId + '?access_token=' +
       access_token + '&fields=source,name,created_time';
 
-    request(requestUrl, function(err, response, body){
-      if (err) {
-        res.send(404);
-        return console.error(chalk.red('[Apostrophe Facebook] ') + 'The error is: ', err);
-      }
-      if(response.statusCode === 200){
-        //Let's parse and send the image's URL.
-        var postObj = JSON.parse(body);
-        return res.json(postObj);
-      }
-    })
-  });
+      request(requestUrl, function(err, response, body){
+        if (err) {
+          res.send(404);
+          return console.error(chalk.red('[Apostrophe Facebook] ') + 'The error is: ', err);
+        }
+        if(response.statusCode === 200){
+          //Let's parse and send the image's URL.
+          var postObj = JSON.parse(body);
+          return res.json(postObj);
+        }
+      })
+    });
 
-  app.get('/apos-facebook/feed', function(req, res) {
+    app.get('/apos-facebook/feed', function(req, res) {
     var pageUrl = apos.sanitizeString(req.query.pageUrl);
     var limit = apos.sanitizeString(req.query.limit);
     var cacheKey = pageUrl + limit;
@@ -171,6 +171,7 @@ function Construct(options, callback) {
       return res.send(results);
     });
   });
+  }
 
   self.renderWidget = function(data) {
     return self.render('facebook', data);
