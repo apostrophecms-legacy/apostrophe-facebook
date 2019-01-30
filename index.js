@@ -17,7 +17,7 @@ function Construct(options, callback) {
   var apos = options.apos;
   var app = options.app;
 
-  if ((!options.fbAppId || !options.fbAppSecret) && !options.disabled) {
+  if ((!options.fbAppId || !options.fbAppSecret) && !options.apiDisabled) {
     console.error('WARNING: you must configure the fbAppId and fbAppSecret options to use the Facebook widget.');
   }
 
@@ -71,7 +71,7 @@ function Construct(options, callback) {
     return ((postYear != thisYear ) ? postMonth +"/"+postDay+"/"+postYear: postMonth +"/"+postDay);
   }
 
-  if (!options.disabled) {
+  if (!options.apiDisabled) {
     //This needs to return a better image.
     app.get('/apos-facebook/photo', function(req, res){
       //Grab the post ID and build out a request URL.
