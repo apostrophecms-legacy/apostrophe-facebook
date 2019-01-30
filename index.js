@@ -17,7 +17,7 @@ function Construct(options, callback) {
   var apos = options.apos;
   var app = options.app;
 
-  if (!options.fbAppId || !options.fbAppSecret) {
+  if ((!options.fbAppId || !options.fbAppSecret) && !options.disabled) {
     console.error('WARNING: you must configure the fbAppId and fbAppSecret options to use the Facebook widget.');
   }
 
