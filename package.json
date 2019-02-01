@@ -28,5 +28,7 @@
     "request": "2.33.0",
     "moment": "~2.0.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "eslint-config-apostrophe": "^2.0.2"
+  }
 }

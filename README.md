@@ -66,3 +66,5 @@ Due to significant changes to the Facebook page API since publishing, you can no
 - [ ] Write some tests?
 
 <a href="http://punkave.com/"><img src="https://raw.github.com/punkave/jquery-bottomless/master/logos/logo-box-builtby.png" /></a>
+
+**Note:** ESLint config included here is for use with editor linting.
