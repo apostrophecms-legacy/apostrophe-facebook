@@ -54,6 +54,9 @@ apos.widgetPlayers.facebook.afterLoad = function($el, posts){
 }
 ```
 
+### Disabling the Facebook API Requests
+Due to significant changes to the Facebook page API since publishing, you can now disable the Facebook requests by adding the option, `apiDisabled: true` to the module configuration. The initial use case for this was to support legacy users of this module in replacing the widget template with Facebook's own page feed plugin with the existing Facebook page URL data for the Apostrophe widget.
+
 ## TO-DO
 - [x] Build it
 - [x] Publish to NPM
@@ -63,3 +66,5 @@ apos.widgetPlayers.facebook.afterLoad = function($el, posts){
 - [ ] Write some tests?
 
 <a href="http://punkave.com/"><img src="https://raw.github.com/punkave/jquery-bottomless/master/logos/logo-box-builtby.png" /></a>
+
+**Note:** ESLint config included here is for use with editor linting.
